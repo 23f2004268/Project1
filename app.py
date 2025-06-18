@@ -13,9 +13,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # AI Proxy configuration
-RAW_TOKEN = os.getenv("AIPROXY_TOKEN")  # should be just the raw token in .env
+RAW_TOKEN = os.getenv("AIPROXY_TOKEN")
 AIPROXY_TOKEN = f"Bearer {RAW_TOKEN}"
-
 AIPROXY_URL = "https://aiproxy.sanand.workers.dev/openai"
 DB_PATH = "knowledge_base.db"
 EMBEDDING_MODEL = "text-embedding-3-small"
@@ -125,7 +124,8 @@ async def query_openai_with_context(context, question):
         async with session.post(COMPLETION_URL, headers=headers, json=payload) as response:
             result = await response.json()
             return result["choices"][0]["message"]["content"]
-        # Parse GPT response into structured format
+
+# Parse GPT response into structured format
 def clean_gpt_response(text: str) -> dict:
     try:
         if text.strip().startswith("```"):
@@ -151,7 +151,6 @@ def clean_gpt_response(text: str) -> dict:
 # Main API route
 @app.post("/api/", response_model=QueryResponse)
 async def query_knowledge_base(request: QueryRequest) -> QueryResponse:
-
     try:
         logging.info(f"🔍 Received question: {request.question}")
         if request.image:
@@ -185,6 +184,7 @@ async def query_knowledge_base(request: QueryRequest) -> QueryResponse:
             "answer": parsed["answer"],
             "links": links
         }
+
         # 🚨 Patch: Ensure course site links (like Docker) are included when relevant
         if ("docker" in request.question.lower() or "podman" in request.question.lower()):
             tds_url = "https://tds.s-anand.net/#/docker"
